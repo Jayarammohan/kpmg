@@ -102,7 +102,7 @@ The binary tree is printed
   		While the frequency list size >= 2
   			a. sort the frequency table in ascending order
 	  		a. Take the least 2 items from the frequency table and insert into the tree
-  			b. Remove these two items from the frequency list and add the sum of these two entries suffixed with * to indicate that it is the sum. This sum frequency entry will participate in the sorting in the next iteration
+  			b. Remove these two items from the frequency list and add the sum of these two entries suffixed with * to                                   indicate that it is the sum. This sum frequency entry will participate in the sorting in the next iteration
 
   			     Eg., 5 and 7 are least two frequencies, so we create
   		                     12:*
