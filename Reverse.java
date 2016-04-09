@@ -1,56 +1,18 @@
-/**
- * This program reverses a character array without allocating any data structures or without using any built in java functions
-
- * If the input is "The Blessing of the Lord",   the output = "Lord the of Blessing The"
- * To effect that, two main things are performed
- * First
- * =====
- * we formulate a schme of how to swap words, ie., which words are to be swapped
- * Example
- * -------
+ /**
  * 
- * Words numbered
- * 
- * 1		2	3	4	5
- * 2		1	3	4	5
- * 2		3	1	4	5
- * 2		3	4	1	5
- * 2		3	4	5	1
- * 
- * 3		2	4	5	1
- * 3		4	2	5	1
- * 3		4	5	2	1
- * 
- * 4		3	5	2	1
- * 4		5	3	2	1
- * 
- * 5		4	3	2	1
- * 
- * 
- * In other words, the words are cascading through slot by slot to eventually arriving at their required destination by swapping two adjacent words.
- * --------------------------------------------------------------------------------------------------------------------------------------------------
- * 
- * 
- * Second
- * ======
- * we swap two different adjacent words, taking good care of the space in between them
- * Assumption: The words should be separated by a single space as the delimiter
- * If more than 1 white space is used in the input string, it is reduced to single white space
- * 
- * 
- * 
- * Test Results
- * =============
- * java Reverse  "1 12 123 1234 12345 123456 1234567 12345678 123456789 1234567890"
- * the input=1 12 123 1234 12345 123456 1234567 12345678 123456789 1234567890
- * Reversed=1234567890 123456789 12345678 1234567 123456 12345 1234 123 12 1
+ * @author Jaya
+ * This program reverses a Character array's  words
+ * For instance, "This is a test" becomes "test a is This"
+ * This, it effects by implementing 2 passes
+ * In the first pass, the character array simply gets reversed
+ * In the second pass, each of the word in the character array gets reversed again restoring the original word
  */
-
-public class Reverse {
+  public class Reverse {
 	
  	
 	public static void main(String args[]) {
 
+		Reverse re = new Reverse();
 		String inputString = new String();
 		if(args.length < 1) {
 			System.out.println("Usage java Shift input");
@@ -63,126 +25,80 @@ public class Reverse {
 		System.out.println("the input=" + inputString);
 
  		char[] charArray = inputString.toCharArray();			//from this point onwards, the reversal is effected with merely swapping characters of the input array, without any new usage nor using any java built in functions
-		
-		//determine the total number of words in this char array
-		int totWords = 0;
-		for(int i=0; i < charArray.length; i++)
-			if(charArray[i] == ' ')
-				totWords++;
-		
-		totWords++;
-
-  		for(int i=0, count =0; count < totWords-1; count++) {
-			for(int j=i+1; j  < totWords-count; j++) {
-   				charArray = swapWord(charArray,j-1,j); 				
-  			}
-		}
- 		System.out.println("Reversed=" + new String(charArray));
-	}
-	
-	//determine the start of the nth word
-	public static int determineStart(char[] input,int word) {
-		int numberOfSpacesTraversed =0;
-		int start =0;
-		
-		for(int i=0; i < input.length; i++) {
-			if(numberOfSpacesTraversed == word) {		//we have located the start of word1
-				start = i;
-				return start;
-			}
-		
-			if(input[i]  == ' ')
-				numberOfSpacesTraversed++;
-		}
-		return input.length;
-	}
-
-
-	public static int determineEnd(char[] input, int from) {
-		
-		int end = 0;
-		for(int i= from+1; i < input.length; i++) {
-			if (input[i] == ' ') {
-				end = i-1;
-				break;
-			}	
-		}
-		if(end == 0)
-			end = input.length-1;
-
-		return end;
-	}
-	
-	public static char[] swapWord(char[] input, int word1, int word2) {
-		int start1=0, end1=0, start2=0, end2=0;
-   		
-		//determine start1
-		start1 = determineStart(input,word1);
-		
-		//determine end1
-		end1 = determineEnd(input,start1);
-		
-		//determine start2
-		start2 = determineStart(input,word2);
-		
-		//determine end2
-		end2 = determineEnd(input,start2);
- 
-		//determine sum of all lengths till the swapped word (the second one)
-		int lengthOfAllWordsUptoWord2 = 0;
-		int lengthOfAllWordsUptoWord1 = 0;
-		
- 		int lengthOfSecondWord = end2 - start2 +1;
-  		lengthOfAllWordsUptoWord2 = determineLengthOfAllWordsUpto (input,word2+1);
-		
-		lengthOfAllWordsUptoWord1 = determineLengthOfAllWordsUpto (input,word1);
-  				
-		int toShiftTo = start1;
-		for(int i = start2; i <= end2; i++) {
-			input = shiftCharsTo(input,i,toShiftTo);
-			toShiftTo++;
-		}
-				
-		//now bring the blank from last position to the position after the first word		
-    		
-		input = shiftCharsTo(input,lengthOfAllWordsUptoWord2-1,   (lengthOfAllWordsUptoWord1 +lengthOfSecondWord));
- 		return input;
-
-	}
-	
-	public static int determineLengthOfAllWordsUpto (char[] input, int word) {
-		int lengthOfAllWordsUpto  = determineStart(input,word);
  		
-		return lengthOfAllWordsUpto ;
+ 		//The first pass
+ 		//where the character array literally gets reversed
+ 		//Eg., This is a test becomes tset a si sihT
+ 		char[] reversedCharArray = re.reverseChars(charArray);
+ 		
+ 		//Now, the second pass where earch word in the character array gets reversed individually
+ 		char[] result = re.secondPassReverse(reversedCharArray);
+ 		System.out.println("The reversed string=" + new String(result));
 	}
 	
 	/**
-	 * To shift n number of characters from 1 start location to another by invoking swap function 
-	 * @param input
-	 * @param source
-	 * @param destn
+	 * Second pass of reversal where each reversed word is again reversed restoring the original word 
+	 */
+	char[] secondPassReverse(char[] source) {
+		
+		System.out.println("string after first pass reversal=" + new String(source));
+		int length = source.length;
+		//in this for loop, we locate next space (which is a word end marker) and then, reverse each word
+		for(int i =0; i < length; i++) {
+			int nextSpaceIndex = i;
+			while((nextSpaceIndex < length)  && (source[nextSpaceIndex] != ' ')) {  	//traverse through the char array to determine the next space
+				nextSpaceIndex ++;	
+			}
+ 			source = reverseChars(source,i,nextSpaceIndex); 	// reverse this particular word which is bounded by i and nextSpaceIndex
+ 			i = nextSpaceIndex;
+ 		}
+		return source;
+	}
+	
+	/**
+	 * This function does the reversal of the given character array starting from 'from' and upto 'upto'
+	 * For eg., 
+	 * if the char array = tset a si sihT, from =0 and upto=4, then it returns test a si sihT
+	 * if the char array = test a si sihT, from =5 and upto=6, then it returns test a si sihT
+	 * if the char array = test a si sihT, from =7 and upto=9, then it returns test a is sihT
+	 * if the char array = test a is sihT, from =10 & upto=14, then it returns test a is This
+
+	 * This enables us to reverse a single word only from the character array comprising of many words
+	 * @param original
 	 * @return
 	 */
-	public static char[] shiftCharsTo(char[] input, int source, int destn) {
-	
-		for(int i = source; i > destn ; i--) {
- 			swap(input,i,i-1);
-		}
-		return input;	
+	char[] reverseChars(char[] original, int from,int upto) {
+		
+		int length = (upto-from);
+		for(int i=0; i < length/2 ; i++) {
+ 			original = swap(original, from+i, from+length-i-1);
+		}	
+		return original;
 	}
+		
 	
 	/**
-	 * swap two words given the indices
+	 * This function literaly reverses the input character array called original
+	 * It does this by calling the overloaded reverseChars function by passing 0 and length as bounds
+	 * @param original
+	 * @return
+	 */
+	char[] reverseChars(char[] original) {
+		return reverseChars(original,0,original.length);
+	}
+
+	/**
+	 * swap two characters given the indices
 	 * @param list
 	 * @param i
 	 * @param j
 	 * @return
 	 */
-	public static char[] swap(char[] list, int i, int j) {
+	public char[] swap(char[] list, int i, int j) {
 		char temp = list[i];
 		list[i] = list[j];
 		list[j] = temp;	
-		
+			
 		return list;
 	}
-}
+}	
