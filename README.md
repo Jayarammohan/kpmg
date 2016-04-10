@@ -46,8 +46,8 @@ Algorithm
 	1 and 0 from the input string are eliminated because they do not correspond to any letters in the DTMF keypad
 	2	-	A
 	3	-	D
-	4	- 	G
-	5	- 	J
+	4	- G
+	5	- J
 	6	-	M
 	7	-	P
 	8	-	T
@@ -70,36 +70,75 @@ Huffman coding tree construction algorithm
 
 Test Results
 ============
+I have given an input string with the below frequencies as below
+----------------------------------------------------------------
+Character       Frequency
+---------       ---------
+1                  5
+2                  7
+3                 10
+4                 15
+5                 20
+6                 45
 
-java Huffman 111112222222333333333344444444444444455555555555555555555666666666666666666666666666666666666666666666
 
-The binary tree is printed 
--------------------------- 
- 
+> java Huffman 123456123456123456123456123456234562345634563456345645645645645645656565656566666666666666666666666666
 
-  Traversed 5 1
-  Traversed 7 2
-  Traversed 10 3
-  Traversed 12 *
-  Traversed 15 4
-  Traversed 20 5
-  Traversed 22 *
-  Traversed 35 *
-  Traversed 45 6
-  Traversed 57 *
-  Traversed 102 *
+The Entries are 
+--------------- 
+5 1 Leaf
+7 2 Leaf
+10 3 Leaf
+12 * Sum
+15 4 Leaf
+20 5 Leaf
+22 * Sum
+35 * Sum
+45 6 Leaf
+57 * Sum
+102 * Sum
+attached as left node of 102 * Sum is 57 * Sum
+attached as right node of 102 * Sum is 45 6 Leaf
+attached as left node of 57 * Sum is 35 * Sum
+attached as right node of 57 * Sum is 22 * Sum
+attached as left node of 35 * Sum is 20 5 Leaf
+attached as right node of 35 * Sum is 15 4 Leaf
+attached as left node of 22 * Sum is 12 * Sum
+attached as right node of 22 * Sum is 10 3 Leaf
+attached as left node of 12 * Sum is 7 2 Leaf
+attached as right node of 12 * Sum is 5 1 Leaf
+
+We are allocating bits for the characters based on Huffman Coding algorithm
+---------------------------------------------------------------------------
+Allocation of bits for 5 which occurs with a freqency of 20 is 000 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 57 * Sum, 35 * Sum, 20 5 Leaf, 
+Allocation of bits for 4 which occurs with a freqency of 15 is 001 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 57 * Sum, 35 * Sum, 15 4 Leaf, 
+Allocation of bits for 2 which occurs with a freqency of 7 is 0100 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 57 * Sum, 22 * Sum, 12 * Sum, 7 2 Leaf, 
+Allocation of bits for 1 which occurs with a freqency of 5 is 0101 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 57 * Sum, 22 * Sum, 12 * Sum, 5 1 Leaf, 
+Allocation of bits for 3 which occurs with a freqency of 10 is 011 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 57 * Sum, 22 * Sum, 10 3 Leaf, 
+Allocation of bits for 6 which occurs with a freqency of 45 is 1 
+This is arrived at by traversing through the tree in the following manner 
+102 * Sum, 45 6 Leaf, 
 
 
   Algorithm
   =========
   1.From the input string, build a frequency table containing the frequency and the character within the same integer with frequency being in the MSB and the character in the LSB. We need to use Integer rather than String because sorting based on freq. required
-
+  These frequecy + character information is stored in a PriortyQueue data structure so that it is always sorted automatically
   
-  2. Now, build the binary tree by the below algorithm
+  2. Now, build the Priority Queue entries by the below algorithm
   		While the frequency list size >= 2
-  			a. sort the frequency table in ascending order
-	  		a. Take the least 2 items from the frequency table and insert into the tree
-   			b. Remove these two items from the frequency list and add the sum of these two entries suffixed with * to indicate that it is the sum. This sum frequency entry will participate in the sorting in the next iteration
+ 	  		a. Take the least 2 items from the frequency table and insert into the entries table
+   			b. Remove these two items from the frequency PriorityQueue and add the sum of these two entries suffixed with * to indicate that it is the sum.  
   
   			     Eg., 5 and 7 are least two frequencies, so we create
   		                     12:*
@@ -107,9 +146,68 @@ The binary tree is printed
   		                   5:1	7:2
 
    		end while
+      Now add the last entry into the entries table
+  		
+      By the above algorithm,
+         our frequency table of
+      1                  5
+      2                  7
+      3                 10
+      4                 15
+      5                 20
+      6                 45
 
-  		Now add the last entry into the binary tree
-  		print the tree                   
+      is translated into Entries list of
+
+      5 1 Leaf
+      7 2 Leaf
+      10 3 Leaf
+      12 * Sum
+      15 4 Leaf
+      20 5 Leaf
+      22 * Sum
+      35 * Sum
+      45 6 Leaf
+      57 * Sum
+      102 * Sum
+
+     3. Now, put the entries list into a stack, so that we can start traversing from 102* by popping from the stack
+     4. Now build the Huffman tree out of the above built stack
+        The logic:
+        Add the root as a nonLeafNonAttachedNodes list initially because it is yet to be attached to its children
+     
+        While there are entries left in the stack
+          pop 2 items from stack and attach them to the current topmost NonLeafNonAttachedNodes, one of them left node and another right node
+          delete this sum node from the NonLeafNonAttachedNodes list because it has just been attached to the 2 children
+          if a node is a sum node, (Denoted by Sum being present in the value), then add it to a NonLeafNonAttachedNodes list because the summation node does not end, only the leaf node terminates
+        end while  
+         
+        By this logic, our entries table gets converted into
+                                         
+                                         102*
+                                        /   \
+                                      57*   45:6 (Leaf)
+                                      / \
+                                     /   \
+                                    /     \
+                                   /       \
+                                  /         \
+                                35*         22*
+                                /  \        /  \
+                               /    \      /    \  
+                            20:5   15:4   12*   10:3 (Leaf)   
+                            (leaf) (Leaf) /  \
+                                         /    \
+                                        7:2   5:1 (Leaf)
+                                      (Leaf)
+
+         5.Now, we go through this tree and to traverse to each leaf node, we make bit "1" if we traverse right and bit "0" if we traverse left
+         So, to traverse to 1,   it is = 0101
+             to traverse to 2,   it is = 0100
+             to traverse to 3,   it is = 011
+             to traverse to 4,   it is = 001
+             to traverse to 5,   it is = 000
+             to traverse to 6,   it is = 1     
 
 
 3.a   This is fairly simple program to reverse a string
