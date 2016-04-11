@@ -84,64 +84,65 @@ Character       Frequency
 
 > java Huffman 123456123456123456123456123456234562345634563456345645645645645645656565656566666666666666666666666666
 
-The Entries are 
+ The Entries are 
 --------------- 
-5 1 Leaf
-7 2 Leaf
-10 3 Leaf
-12 * Sum
-15 4 Leaf
-20 5 Leaf
-22 * Sum
-35 * Sum
-45 6 Leaf
-57 * Sum
-102 * Sum
-attached as left node of 102 * Sum is 57 * Sum
-attached as right node of 102 * Sum is 45 6 Leaf
-attached as left node of 57 * Sum is 35 * Sum
-attached as right node of 57 * Sum is 22 * Sum
-attached as left node of 35 * Sum is 20 5 Leaf
-attached as right node of 35 * Sum is 15 4 Leaf
-attached as left node of 22 * Sum is 12 * Sum
-attached as right node of 22 * Sum is 10 3 Leaf
-attached as left node of 12 * Sum is 7 2 Leaf
-attached as right node of 12 * Sum is 5 1 Leaf
+1:5
+2:7
+3:10
+sum:12
+4:15
+5:20
+sum:22
+sum:35
+6:45
+sum:57
+sum:102
+attached as left node of sum:102 is sum:57
+attached as right node of sum:102 is 6:45
+attached as left node of sum:57 is sum:35
+attached as right node of sum:57 is sum:22
+attached as left node of sum:35 is 5:20
+attached as right node of sum:35 is 4:15
+attached as left node of sum:22 is sum:12
+attached as right node of sum:22 is 3:10
+attached as left node of sum:12 is 2:7
+attached as right node of sum:12 is 1:5
 
 We are allocating bits for the characters based on Huffman Coding algorithm
 ---------------------------------------------------------------------------
 Allocation of bits for 5 which occurs with a freqency of 20 is 000 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 57 * Sum, 35 * Sum, 20 5 Leaf, 
+sum:102, sum:57, sum:35, 5:20, 
 Allocation of bits for 4 which occurs with a freqency of 15 is 001 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 57 * Sum, 35 * Sum, 15 4 Leaf, 
+sum:102, sum:57, sum:35, 4:15, 
 Allocation of bits for 2 which occurs with a freqency of 7 is 0100 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 57 * Sum, 22 * Sum, 12 * Sum, 7 2 Leaf, 
+sum:102, sum:57, sum:22, sum:12, 2:7, 
 Allocation of bits for 1 which occurs with a freqency of 5 is 0101 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 57 * Sum, 22 * Sum, 12 * Sum, 5 1 Leaf, 
+sum:102, sum:57, sum:22, sum:12, 1:5, 
 Allocation of bits for 3 which occurs with a freqency of 10 is 011 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 57 * Sum, 22 * Sum, 10 3 Leaf, 
+sum:102, sum:57, sum:22, 3:10, 
 Allocation of bits for 6 which occurs with a freqency of 45 is 1 
 This is arrived at by traversing through the tree in the following manner 
-102 * Sum, 45 6 Leaf, 
+sum:102, 6:45, 
+
 
 
   Algorithm
   =========
-  1.From the input string, build a frequency table containing the frequency and the character within the same integer with frequency being in the MSB and the character in the LSB. We need to use Integer rather than String because sorting based on freq. required
-  These frequecy + character information is stored in a PriortyQueue data structure so that it is always sorted automatically
+  1.From the input string, build a frequency table containing the frequency and the character encapsulated within a class called Element
+  These frequecy + character information is stored in a PriortyQueue data structure so that it is always sorted automatically with the provided comparator which sorts based on frequency
   
   2. Now, build the Priority Queue entries by the below algorithm
   		While the frequency list size >= 2
  	  		a. Take the least 2 items from the frequency table and insert into the entries table
-   			b. Remove these two items from the frequency PriorityQueue and add the sum of these two entries suffixed with * to indicate that it is the sum.  
+   			b. Remove these two items from the frequency PriorityQueue and add the sum of these two entries with value set as 'sum' to indicate that it is the sum.  
   
   			     Eg., 5 and 7 are least two frequencies, so we create
-  		                     12:*
+  		                     12:sum
   		                    /   \
   		                   5:1	7:2
 
@@ -162,16 +163,16 @@ This is arrived at by traversing through the tree in the following manner
       5 1 Leaf
       7 2 Leaf
       10 3 Leaf
-      12 * Sum
+      12 Sum
       15 4 Leaf
       20 5 Leaf
-      22 * Sum
-      35 * Sum
+      22  Sum
+      35  Sum
       45 6 Leaf
-      57 * Sum
-      102 * Sum
+      57  Sum
+      102 Sum
 
-     3. Now, put the entries list into a stack, so that we can start traversing from 102* by popping from the stack
+     3. Now, put the entries list into a stack, so that we can start traversing from 102 Sum by popping from the stack
      4. Now build the Huffman tree out of the above built stack
         The logic:
         Add the root as a nonLeafNonAttachedNodes list initially because it is yet to be attached to its children
@@ -184,18 +185,18 @@ This is arrived at by traversing through the tree in the following manner
          
         By this logic, our entries table gets converted into
                                          
-                                         102*
+                                         102sum
                                         /   \
-                                      57*   45:6 (Leaf)
+                                      57sum  45:6 (Leaf)
                                       / \
                                      /   \
                                     /     \
                                    /       \
                                   /         \
-                                35*         22*
+                                35sum       22sum
                                 /  \        /  \
                                /    \      /    \  
-                            20:5   15:4   12*   10:3 (Leaf)   
+                            20:5   15:4   12sum 10:3 (Leaf)   
                             (leaf) (Leaf) /  \
                                          /    \
                                         7:2   5:1 (Leaf)
